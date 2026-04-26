@@ -1,0 +1,262 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  MEDICO
+  RECEPCIONISTA
+}
+
+enum AppointmentStatus {
+  PENDIENTE
+  CONFIRMADO
+  CANCELADO
+  COMPLETADO
+  AUSENTE
+}
+
+enum PrescriptionStatus {
+  ACTIVA
+  SUSPENDIDA
+  FINALIZADA
+}
+
+enum TreatmentStatus {
+  ACTIVO
+  PAUSADO
+  FINALIZADO
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  nombre    String
+  slug      String   @unique
+  plan      String   @default("BASIC")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users    OrgUser[]
+  patients Patient[]
+
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  evolutions     Evolution[]
+  prescriptions  Prescription[]
+  studies        Study[]
+  treatments     Treatment[]
+
+  @@map("organizations")
+}
+
+model OrgUser {
+  userId String
+  orgId  String
+  role   Role
+
+  user User         @relation(fields: [userId], references: [id])
+  org  Organization @relation(fields: [orgId], references: [id])
+
+  @@id([userId, orgId])
+  @@map("org_users")
+}
+
+model User {
+  id                   String   @id @default(uuid())
+  email                String   @unique
+  name                 String
+  passwordHash         String
+  active               Boolean  @default(true)
+  duracionTurnoDefault Int      @default(30)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  organizations OrgUser[]
+
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  evolutions     Evolution[]
+  prescriptions  Prescription[]
+  studies        Study[]
+
+  @@map("users")
+}
+
+model Patient {
+  id               String   @id @default(uuid())
+  orgId            String
+  dni              String
+  nombre           String
+  apellido         String
+  fechaNacimiento  DateTime
+  telefono         String?
+  email            String?
+  obraSocial       String?
+  numeroAfiliado   String?
+  antecedentes     String?
+  alergias         String?
+  medicacionActual String?
+  active           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id])
+
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+
+  @@unique([orgId, dni])
+  @@index([orgId])
+  @@index([apellido, nombre])
+  @@map("patients")
+}
+
+model Appointment {
+  id             String            @id @default(uuid())
+  orgId          String
+  patientId      String
+  professionalId String
+  fechaHora      DateTime
+  duracionMin    Int               @default(30)
+  estado         AppointmentStatus @default(PENDIENTE)
+  motivoConsulta String?
+  observaciones  String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  org          Organization @relation(fields: [orgId], references: [id])
+  patient      Patient      @relation(fields: [patientId], references: [id])
+  professional User         @relation(fields: [professionalId], references: [id])
+
+  @@index([orgId])
+  @@index([professionalId, fechaHora])
+  @@index([patientId])
+  @@map("appointments")
+}
+
+model MedicalRecord {
+  id             String   @id @default(uuid())
+  orgId          String
+  patientId      String
+  professionalId String
+  fechaApertura  DateTime @default(now())
+  motivoConsulta String?
+  diagnostico    String?
+  tratamiento    String?
+  observaciones  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  org          Organization @relation(fields: [orgId], references: [id])
+  patient      Patient      @relation(fields: [patientId], references: [id])
+  professional User         @relation(fields: [professionalId], references: [id])
+
+  evolutions    Evolution[]
+  prescriptions Prescription[]
+  studies       Study[]
+  treatments    Treatment[]
+
+  @@index([orgId])
+  @@index([patientId])
+  @@map("medical_records")
+}
+
+model Evolution {
+  id              String   @id @default(uuid())
+  orgId           String
+  medicalRecordId String
+  professionalId  String
+  fecha           DateTime @default(now())
+  subjetivo       String?
+  objetivo        String?
+  evaluacion      String?
+  plan            String?
+  createdAt       DateTime @default(now())
+
+  org           Organization  @relation(fields: [orgId], references: [id])
+  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+  professional  User          @relation(fields: [professionalId], references: [id])
+
+  @@index([orgId])
+  @@index([medicalRecordId, fecha])
+  @@map("evolutions")
+}
+
+model Prescription {
+  id                 String             @id @default(uuid())
+  orgId              String
+  medicalRecordId    String
+  professionalId     String
+  fecha              DateTime           @default(now())
+  estado             PrescriptionStatus @default(ACTIVA)
+  indicaciones       String?
+  numeroPrescripcion String?            @unique
+  createdAt          DateTime           @default(now())
+
+  org           Organization  @relation(fields: [orgId], references: [id])
+  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+  professional  User          @relation(fields: [professionalId], references: [id])
+
+  items PrescriptionItem[]
+
+  @@index([orgId])
+  @@map("prescriptions")
+}
+
+model PrescriptionItem {
+  id             String @id @default(uuid())
+  prescriptionId String
+  nombre         String
+  dosis          String
+  frecuencia     String
+
+  prescription Prescription @relation(fields: [prescriptionId], references: [id])
+
+  @@map("prescription_items")
+}
+
+model Study {
+  id              String   @id @default(uuid())
+  orgId           String
+  medicalRecordId String
+  professionalId  String
+  fecha           DateTime @default(now())
+  tipo            String
+  descripcion     String
+  resultado       String?
+  archivoUrl      String?
+  laboratorio     String?
+
+  org           Organization  @relation(fields: [orgId], references: [id])
+  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+  professional  User          @relation(fields: [professionalId], references: [id])
+
+  @@index([orgId])
+  @@index([medicalRecordId, tipo])
+  @@map("studies")
+}
+
+model Treatment {
+  id              String          @id @default(uuid())
+  orgId           String
+  medicalRecordId String
+  nombre          String
+  descripcion     String?
+  fechaInicio     DateTime
+  fechaFin        DateTime?
+  estado          TreatmentStatus @default(ACTIVO)
+  observaciones   String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  org           Organization  @relation(fields: [orgId], references: [id])
+  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+
+  @@index([orgId])
+  @@map("treatments")
+}
