@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     },
   })
 
-  return NextResponse.json(orgUsers.map((ou) => ({
+  return NextResponse.json(orgUsers.map((ou: any) => ({
     id: ou.user.id,
     name: ou.user.name,
     email: ou.user.email,
