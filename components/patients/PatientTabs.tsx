@@ -224,6 +224,14 @@ export default function PatientTabs({ patient, medicalRecord }: PatientTabsProps
         <div className="bg-white rounded-xl border border-slate-200">
           <div className="px-6 py-4 border-b border-slate-200">
             <h3 className="font-semibold text-slate-900">Estudios</h3>
+            {medicalRecord && (
+        <Link
+          href={`/dashboard/estudios/nuevo?medicalRecordId=${medicalRecord.id}`}
+          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+        >
+          + Nuevo estudio
+        </Link>
+      )}
           </div>
           {!medicalRecord || !medicalRecord.studies || medicalRecord.studies.length === 0 ? (
             <div className="py-12 text-center">
