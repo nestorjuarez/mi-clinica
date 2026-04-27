@@ -10,7 +10,7 @@ export default async function EstudiosPage() {
   const orgId = (session?.user as any)?.orgId
 
   const estudios = await prisma.study.findMany({
-    where: { orgId },
+    where: { orgId, medicalRecord: { patient: { active: true } } },
     include: {
       medicalRecord: {
         include: {

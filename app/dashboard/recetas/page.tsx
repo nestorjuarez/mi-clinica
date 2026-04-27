@@ -10,7 +10,7 @@ export default async function RecetasPage() {
   const orgId = (session?.user as any)?.orgId
 
   const recetas = await prisma.prescription.findMany({
-    where: { orgId },
+    where: { orgId, medicalRecord: { patient: { active: true } } },
     include: {
       medicalRecord: {
         include: {

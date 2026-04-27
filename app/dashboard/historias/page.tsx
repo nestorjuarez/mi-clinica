@@ -10,7 +10,7 @@ export default async function HistoriasPage() {
   const orgId = (session?.user as any)?.orgId
 
   const historias = await prisma.medicalRecord.findMany({
-    where: { orgId },
+    where: { orgId, patient: { active: true } },
     include: {
       patient: { select: { nombre: true, apellido: true, dni: true } },
       professional: { select: { name: true } },
