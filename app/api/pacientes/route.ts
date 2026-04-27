@@ -29,17 +29,48 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get('limit') ?? '20')
   const skip = (page - 1) * limit
 
-  const where = {
-    orgId,
-    active: true,
-    ...(search && {
+  // const where = {
+  //   orgId,
+  //   active: true,
+  //   ...(search && {
+  //     OR: [
+  //       { dni: { contains: search } },
+  //       { nombre: { contains: search, mode: 'insensitive' as const } },
+  //       { apellido: { contains: search, mode: 'insensitive' as const } },
+  //     ],
+  //   }),
+  // }
+
+  const userId = (session.user as any).id
+const role = (session.user as any).role
+
+const medicoFilter = role === 'MEDICO'
+  ? {
+      OR: [
+        { medicalRecords: { some: { professionalId: userId } } },
+        { appointments: { some: { professionalId: userId } } },
+      ],
+    }
+  : {}
+
+const searchFilter = search
+  ? {
       OR: [
         { dni: { contains: search } },
         { nombre: { contains: search, mode: 'insensitive' as const } },
         { apellido: { contains: search, mode: 'insensitive' as const } },
       ],
-    }),
-  }
+    }
+  : {}
+
+const where = {
+  orgId,
+  active: true,
+  AND: [
+    medicoFilter,
+    searchFilter,
+  ].filter(f => Object.keys(f).length > 0),
+}
 
   const [patients, total] = await Promise.all([
     prisma.patient.findMany({
