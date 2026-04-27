@@ -121,7 +121,7 @@ export default async function DashboardPage() {
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {turnosRecientes.map((turno) => (
+            {turnosRecientes.map((turno: any) => (
               <div key={turno.id} className="px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="text-center w-14">
