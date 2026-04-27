@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
   while (current < end) {
     const slotISO = current.toISOString()
-    const ocupado = turnosOcupados.some((t) => {
+    const ocupado = turnosOcupados.some((t: { fechaHora: Date; duracionMin: number }) => {
       const tStart = new Date(t.fechaHora)
       const tEnd = addMinutes(tStart, t.duracionMin)
       return current >= tStart && current < tEnd
