@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { format, addDays, subDays, startOfWeek, addWeeks, subWeeks } from 'date-fns'
+import { format, addDays, startOfWeek, addWeeks, subWeeks } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useAppointments, useCancelAppointment, useUpdateAppointment } from '@/hooks/useAppointments'
 import AppointmentModal from '@/components/appointments/AppointmentModal'
@@ -51,9 +51,16 @@ export default function AgendaPage() {
   }
 
   const getAppointmentForHour = (hora: number) => {
-    return appointments.filter(a => {
+    return appointments.filter((a: any) => {
       const h = new Date(a.fechaHora).getHours()
       return h === hora
+    })
+  }
+
+  const isHourBlocked = (hora: number) => {
+    return appointments.some((a: any) => {
+      const h = new Date(a.fechaHora).getHours()
+      return h === hora && (a.estado === 'PENDIENTE' || a.estado === 'CONFIRMADO')
     })
   }
 
@@ -147,6 +154,8 @@ export default function AgendaPage() {
           <div className="divide-y divide-slate-100">
             {HOURS.map((hora) => {
               const turnos = getAppointmentForHour(hora)
+              const bloqueado = isHourBlocked(hora)
+
               return (
                 <div
                   key={hora}
@@ -161,63 +170,65 @@ export default function AgendaPage() {
 
                   {/* Contenido */}
                   <div className="flex-1 min-h-[48px]">
-                    {turnos.length === 0 ? (
-                      <button
-                        onClick={() => handleSlotClick(hora)}
-                        className="w-full h-full min-h-[48px] border border-dashed border-slate-200 rounded-lg text-xs text-slate-300 hover:border-blue-300 hover:text-blue-400 hover:bg-blue-50 transition opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1"
-                      >
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                        Agregar turno
-                      </button>
-                    ) : (
-                      <div className="space-y-2">
-                        {turnos.map((turno) => (
-                          <div
-                            key={turno.id}
-                            className={`flex items-center justify-between p-3 rounded-lg border ${ESTADO_COLORS[turno.estado]}`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
-                                <span className="text-xs font-bold text-slate-600">
-                                  {turno.patient.apellido.charAt(0)}{turno.patient.nombre.charAt(0)}
-                                </span>
-                              </div>
-                              <div>
-                                <p className="text-sm font-semibold">
-                                  {turno.patient.apellido}, {turno.patient.nombre}
-                                </p>
-                                <p className="text-xs opacity-70">
-                                  {turno.motivoConsulta ?? 'Sin motivo especificado'} · {turno.duracionMin} min
-                                </p>
-                              </div>
+                    <div className="space-y-2">
+                      {/* Turnos del horario */}
+                      {turnos.map((turno: any) => (
+                        <div
+                          key={turno.id}
+                          className={`flex items-center justify-between p-3 rounded-lg border ${ESTADO_COLORS[turno.estado]}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                              <span className="text-xs font-bold text-slate-600">
+                                {turno.patient.apellido.charAt(0)}{turno.patient.nombre.charAt(0)}
+                              </span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <select
-                                value={turno.estado}
-                                onChange={(e) => handleChangeEstado(turno.id, e.target.value)}
-                                className="text-xs border-0 bg-transparent font-medium focus:outline-none cursor-pointer"
-                              >
-                                <option value="PENDIENTE">Pendiente</option>
-                                <option value="CONFIRMADO">Confirmado</option>
-                                <option value="COMPLETADO">Completado</option>
-                                <option value="AUSENTE">Ausente</option>
-                                <option value="CANCELADO">Cancelado</option>
-                              </select>
-                              <button
-                                onClick={() => handleCancel(turno.id)}
-                                className="p-1 hover:bg-white rounded transition opacity-60 hover:opacity-100"
-                              >
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                              </button>
+                            <div>
+                              <p className="text-sm font-semibold">
+                                {turno.patient.apellido}, {turno.patient.nombre}
+                              </p>
+                              <p className="text-xs opacity-70">
+                                {turno.motivoConsulta ?? 'Sin motivo especificado'} · {turno.duracionMin} min
+                              </p>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={turno.estado}
+                              onChange={(e) => handleChangeEstado(turno.id, e.target.value)}
+                              className="text-xs border-0 bg-transparent font-medium focus:outline-none cursor-pointer"
+                            >
+                              <option value="PENDIENTE">Pendiente</option>
+                              <option value="CONFIRMADO">Confirmado</option>
+                              <option value="COMPLETADO">Completado</option>
+                              <option value="AUSENTE">Ausente</option>
+                              <option value="CANCELADO">Cancelado</option>
+                            </select>
+                            <button
+                              onClick={() => handleCancel(turno.id)}
+                              className="p-1 hover:bg-white rounded transition opacity-60 hover:opacity-100"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Botón agregar si el horario no está bloqueado */}
+                      {!bloqueado && (
+                        <button
+                          onClick={() => handleSlotClick(hora)}
+                          className="w-full min-h-[48px] border border-dashed border-slate-200 rounded-lg text-xs text-slate-300 hover:border-blue-300 hover:text-blue-400 hover:bg-blue-50 transition opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1"
+                        >
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                          Agregar turno
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               )
