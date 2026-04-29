@@ -1,5 +1,16 @@
 'use client'
 
+interface Tratamiento {
+  id: string
+  nombre: string
+  descripcion?: string
+  fechaInicio: string
+  fechaFin?: string
+  estado: string
+  observaciones?: string
+}
+
+
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -27,7 +38,7 @@ export default function TratamientoDetailPage({
   const [form, setForm] = useState<any>(null)
   const [error, setError] = useState('')
 
-  const { data: tratamiento, isLoading } = useQuery({
+  const { data: tratamiento, isLoading } = useQuery<Tratamiento>({
     queryKey: ['tratamiento', params.id],
     queryFn: async () => {
       const res = await fetch(`/api/tratamientos/${params.id}`)
