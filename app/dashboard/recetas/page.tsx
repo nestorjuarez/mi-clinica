@@ -84,13 +84,23 @@ export default async function RecetasPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <Link
-                      href={`/dashboard/pacientes/${rx.medicalRecord.patient.id}`}
-                      className="text-xs font-medium text-blue-600 hover:text-blue-700 px-2.5 py-1.5 rounded-md hover:bg-blue-50 transition"
-                    >
-                      Ver paciente
-                    </Link>
-                  </td>
+  <div className="flex items-center justify-end gap-2">
+    <a
+      href={`/api/recetas/${rx.id}/pdf`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-xs font-medium text-green-600 hover:text-green-700 px-2.5 py-1.5 rounded-md hover:bg-green-50 transition"
+    >
+      Imprimir PDF
+    </a>
+    <Link
+      href={`/dashboard/pacientes/${rx.medicalRecord.patient.id}`}
+      className="text-xs font-medium text-blue-600 hover:text-blue-700 px-2.5 py-1.5 rounded-md hover:bg-blue-50 transition"
+    >
+      Ver paciente
+    </Link>
+  </div>
+</td>
                 </tr>
               ))}
             </tbody>
