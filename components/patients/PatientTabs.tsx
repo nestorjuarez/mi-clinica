@@ -10,6 +10,7 @@ const TABS = [
   { id: 'evoluciones', label: 'Evoluciones' },
   { id: 'recetas', label: 'Recetas' },
   { id: 'estudios', label: 'Estudios' },
+  { id: 'tratamientos', label: 'Tratamientos' },
   { id: 'turnos', label: 'Turnos' },
 ]
 
@@ -96,12 +97,7 @@ export default function PatientTabs({ patient, medicalRecord }: PatientTabsProps
               {medicalRecord.treatments && medicalRecord.treatments.length > 0 && (
                 <div className="pt-4 border-t border-slate-100">
                   <p className="text-xs font-semibold text-slate-500 mb-2">Tratamientos activos</p>
-                  <Link
-                    href={`/dashboard/historias/${medicalRecord.id}/tratamientos/nuevo`}
-                    className="text-xs font-medium text-blue-600 hover:text-blue-700"
-                  >
-                    + Nuevo
-                  </Link>
+                
                   <div className="space-y-2">
                     {medicalRecord.treatments.map((t: any) => (
                       <div key={t.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
@@ -306,6 +302,47 @@ export default function PatientTabs({ patient, medicalRecord }: PatientTabsProps
           )}
         </div>
       )}
+
+{activeTab === 'tratamientos' && (
+  <div className="bg-white rounded-xl border border-slate-200">
+    <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <h3 className="font-semibold text-slate-900">Tratamientos</h3>
+      {medicalRecord && (
+        <Link
+          href={`/dashboard/historias/${medicalRecord.id}/tratamientos/nuevo`}
+          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+        >
+          + Nuevo tratamiento
+        </Link>
+      )}
+    </div>
+    {!medicalRecord || !medicalRecord.treatments || medicalRecord.treatments.length === 0 ? (
+      <div className="py-12 text-center">
+        <p className="text-slate-400 text-sm">No hay tratamientos registrados</p>
+      </div>
+    ) : (
+      <div className="divide-y divide-slate-100">
+        {medicalRecord.treatments.map((t: any) => (
+          <div key={t.id} className="px-6 py-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-900">{t.nombre}</p>
+              {t.descripcion && (
+                <p className="text-xs text-slate-400 mt-0.5">{t.descripcion}</p>
+              )}
+            </div>
+            <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+              t.estado === 'ACTIVO' ? 'bg-green-50 text-green-700' :
+              t.estado === 'PAUSADO' ? 'bg-amber-50 text-amber-700' :
+              'bg-slate-100 text-slate-500'
+            }`}>
+              {t.estado}
+            </span>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+)}
     </div>
   )
 }
