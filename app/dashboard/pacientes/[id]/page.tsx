@@ -35,7 +35,7 @@ export default async function PatientProfilePage({
             take: 5,
           },
           treatments: {
-            where: { estado: 'ACTIVO' },
+            orderBy: { createdAt: 'desc' },
           },
           professional: { select: { name: true } },
         },
