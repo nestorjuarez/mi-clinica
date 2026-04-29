@@ -99,23 +99,29 @@ export default function PatientTabs({ patient, medicalRecord }: PatientTabsProps
                   <p className="text-xs font-semibold text-slate-500 mb-2">Tratamientos activos</p>
                 
                   <div className="space-y-2">
-                    {medicalRecord.treatments.map((t: any) => (
-                      <div key={t.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                  {medicalRecord.treatments.map((t: any) => (
+                      <div key={t.id} className="px-6 py-4 flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium text-slate-900">{t.nombre}</p>
                           {t.descripcion && (
-                            <p className="text-xs text-slate-500">{t.descripcion}</p>
+                            <p className="text-xs text-slate-400 mt-0.5">{t.descripcion}</p>
                           )}
                         </div>
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
-                          {t.estado}
-                        </span>
-                        <Link
-                          href={`/dashboard/tratamientos/${t.id}`}
-                          className="text-xs font-medium text-blue-600 hover:text-blue-700"
-                        >
-                          Ver detalle
-                        </Link>
+                        <div className="flex items-center gap-3">
+                          <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                            t.estado === 'ACTIVO' ? 'bg-green-50 text-green-700' :
+                            t.estado === 'PAUSADO' ? 'bg-amber-50 text-amber-700' :
+                            'bg-slate-100 text-slate-500'
+                          }`}>
+                            {t.estado}
+                          </span>
+                          <Link
+                            href={`/dashboard/tratamientos/${t.id}`}
+                            className="text-xs font-medium text-blue-600 hover:text-blue-700"
+                          >
+                            Ver detalle
+                          </Link>
+                        </div>
                       </div>
                     ))}
                   </div>
