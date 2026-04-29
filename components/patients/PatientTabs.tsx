@@ -349,6 +349,12 @@ export default function PatientTabs({ patient, medicalRecord }: PatientTabsProps
             }`}>
               {t.estado}
             </span>
+            <Link
+              href={`/dashboard/tratamientos/${t.id}`}
+              className="text-xs font-medium text-blue-600 hover:text-blue-700"
+            >
+              Ver detalle
+            </Link>
           </div>
         ))}
       </div>
