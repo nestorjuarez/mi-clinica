@@ -110,6 +110,12 @@ export default function PatientTabs({ patient, medicalRecord }: PatientTabsProps
                         <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
                           {t.estado}
                         </span>
+                        <Link
+                          href={`/dashboard/tratamientos/${t.id}`}
+                          className="text-xs font-medium text-blue-600 hover:text-blue-700"
+                        >
+                          Ver detalle
+                        </Link>
                       </div>
                     ))}
                   </div>
