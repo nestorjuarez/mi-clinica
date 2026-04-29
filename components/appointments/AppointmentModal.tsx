@@ -30,18 +30,31 @@ export default function AppointmentModal({
   const [error, setError] = useState('')
 
   const createAppointment = useCreateAppointment()
-  const { data: patientsData } = usePatients(searchPaciente, 1)
+  // const { data: patientsData } = usePatients(searchPaciente, 1)
+  const [patientResults, setPatientResults] = useState<any[]>([])
+
   const { data: slots = [] } = useDisponibilidad(form.professionalId, fecha)
 
   // Profesionales — en producción vendría de una API
   const [profesionales, setProfesionales] = useState<{ id: string; name: string }[]>([])
 
-  useEffect(() => {
-    fetch('/api/usuarios?role=MEDICO')
-      .then((r) => r.json())
-      .then((data) => setProfesionales(data))
-      .catch(() => {})
-  }, [])
+  // useEffect(() => {
+  //   fetch('/api/usuarios?role=MEDICO')
+  //     .then((r) => r.json())
+  //     .then((data) => setProfesionales(data))
+  //     .catch(() => {})
+  // }, [])
+
+useEffect(() => {
+  if (!searchPaciente) return
+  const timer = setTimeout(async () => {
+    const params = new URLSearchParams({ q: searchPaciente, all: 'true' })
+    const res = await fetch(`/api/pacientes?${params}`)
+    const data = await res.json()
+    setPatientResults(data.data ?? [])
+  }, 300)
+  return () => clearTimeout(timer)
+}, [searchPaciente])
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -114,15 +127,17 @@ export default function AppointmentModal({
               onChange={(e) => setSearchPaciente(e.target.value)}
               className={inputClass}
             />
-            {searchPaciente && patientsData?.data && patientsData.data.length > 0 && (
+            {searchPaciente &&  patientResults.length > 0 && (
               <div className="mt-1 border border-slate-200 rounded-lg overflow-hidden shadow-sm">
-                {patientsData.data.slice(0, 5).map((p) => (
+                {patientResults.slice(0, 5).map((p) => (
                   <button
                     key={p.id}
                     type="button"
                     onClick={() => {
                       setForm((prev) => ({ ...prev, patientId: p.id }))
                       setSearchPaciente(`${p.apellido}, ${p.nombre}`)
+                      setPatientResults([])
+
                     }}
                     className="w-full text-left px-4 py-2.5 hover:bg-blue-50 transition text-sm border-b border-slate-100 last:border-0"
                   >

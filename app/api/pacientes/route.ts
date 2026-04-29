@@ -42,35 +42,41 @@ export async function GET(req: NextRequest) {
   // }
 
   const userId = (session.user as any).id
-const role = (session.user as any).role
-
-const medicoFilter = role === 'MEDICO'
-  ? {
-      OR: [
-        { medicalRecords: { some: { professionalId: userId } } },
-        { appointments: { some: { professionalId: userId } } },
-      ],
-    }
-  : {}
-
-const searchFilter = search
-  ? {
-      OR: [
-        { dni: { contains: search } },
-        { nombre: { contains: search, mode: 'insensitive' as const } },
-        { apellido: { contains: search, mode: 'insensitive' as const } },
-      ],
-    }
-  : {}
-
-const where = {
-  orgId,
-  active: true,
-  AND: [
-    medicoFilter,
-    searchFilter,
-  ].filter(f => Object.keys(f).length > 0),
-}
+  const role = (session.user as any).role
+  const all = searchParams.get('all') === 'true'
+  
+  const medicoFilter =
+    role === 'MEDICO' && !all
+      ? {
+          OR: [
+            { medicalRecords: { some: { professionalId: userId } } },
+            { appointments: { some: { professionalId: userId } } },
+          ],
+        }
+      : {}
+  
+  const searchFilter = search
+    ? {
+        OR: [
+          { dni: { contains: search } },
+          { nombre: { contains: search, mode: 'insensitive' as const } },
+          { apellido: { contains: search, mode: 'insensitive' as const } },
+        ],
+      }
+    : {}
+  
+  const where: any = {
+    orgId,
+    active: true,
+  }
+  
+  if (Object.keys(medicoFilter).length > 0 && Object.keys(searchFilter).length > 0) {
+    where.AND = [medicoFilter, searchFilter]
+  } else if (Object.keys(medicoFilter).length > 0) {
+    Object.assign(where, medicoFilter)
+  } else if (Object.keys(searchFilter).length > 0) {
+    Object.assign(where, searchFilter)
+  }
 
   const [patients, total] = await Promise.all([
     prisma.patient.findMany({
