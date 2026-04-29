@@ -96,6 +96,12 @@ export default function PatientTabs({ patient, medicalRecord }: PatientTabsProps
               {medicalRecord.treatments && medicalRecord.treatments.length > 0 && (
                 <div className="pt-4 border-t border-slate-100">
                   <p className="text-xs font-semibold text-slate-500 mb-2">Tratamientos activos</p>
+                  <Link
+                    href={`/dashboard/historias/${medicalRecord.id}/tratamientos/nuevo`}
+                    className="text-xs font-medium text-blue-600 hover:text-blue-700"
+                  >
+                    + Nuevo
+                  </Link>
                   <div className="space-y-2">
                     {medicalRecord.treatments.map((t: any) => (
                       <div key={t.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
@@ -267,6 +273,7 @@ export default function PatientTabs({ patient, medicalRecord }: PatientTabsProps
           )}
         </div>
       )}
+      
 
       {activeTab === 'turnos' && (
         <div className="bg-white rounded-xl border border-slate-200">
