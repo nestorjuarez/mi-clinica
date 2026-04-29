@@ -29,53 +29,17 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get('limit') ?? '20')
   const skip = (page - 1) * limit
 
-  // const where = {
-  //   orgId,
-  //   active: true,
-  //   ...(search && {
-  //     OR: [
-  //       { dni: { contains: search } },
-  //       { nombre: { contains: search, mode: 'insensitive' as const } },
-  //       { apellido: { contains: search, mode: 'insensitive' as const } },
-  //     ],
-  //   }),
-  // }
-
-  const userId = (session.user as any).id
-  const role = (session.user as any).role
-  const all = searchParams.get('all') === 'true'
-  
-  const medicoFilter =
-    role === 'MEDICO' && !all
-      ? {
-          OR: [
-            { medicalRecords: { some: { professionalId: userId } } },
-            { appointments: { some: { professionalId: userId } } },
-          ],
-        }
-      : {}
-  
-  const searchFilter = search
-    ? {
-        OR: [
-          { dni: { contains: search } },
-          { nombre: { contains: search, mode: 'insensitive' as const } },
-          { apellido: { contains: search, mode: 'insensitive' as const } },
-        ],
-      }
-    : {}
-  
   const where: any = {
     orgId,
     active: true,
   }
-  
-  if (Object.keys(medicoFilter).length > 0 && Object.keys(searchFilter).length > 0) {
-    where.AND = [medicoFilter, searchFilter]
-  } else if (Object.keys(medicoFilter).length > 0) {
-    Object.assign(where, medicoFilter)
-  } else if (Object.keys(searchFilter).length > 0) {
-    Object.assign(where, searchFilter)
+
+  if (search) {
+    where.OR = [
+      { dni: { contains: search } },
+      { nombre: { contains: search, mode: 'insensitive' as const } },
+      { apellido: { contains: search, mode: 'insensitive' as const } },
+    ]
   }
 
   const [patients, total] = await Promise.all([
@@ -131,7 +95,11 @@ export async function POST(req: NextRequest) {
   }
 
   const patient = await prisma.patient.create({
-    data: { ...parsed.data, orgId,  fechaNacimiento: new Date(parsed.data.fechaNacimiento) },
+    data: {
+      ...parsed.data,
+      orgId,
+      fechaNacimiento: new Date(parsed.data.fechaNacimiento),
+    },
   })
 
   return NextResponse.json(patient, { status: 201 })
