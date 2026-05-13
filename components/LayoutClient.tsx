@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import Sidebar from './Sidebar'
 
 export default function LayoutClient({
@@ -10,9 +11,17 @@ export default function LayoutClient({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  const pathname = usePathname()
+
+  const hideSidebar = pathname === '/login'
+
+  if (hideSidebar) {
+    return <>{children}</>
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-50">
-      
+
       {/* Overlay mobile */}
       {sidebarOpen && (
         <div
@@ -35,7 +44,7 @@ export default function LayoutClient({
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        
+
         {/* Header mobile */}
         <header className="lg:hidden bg-white border-b px-4 py-3 flex items-center">
           <button onClick={() => setSidebarOpen(true)}>
