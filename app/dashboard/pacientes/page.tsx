@@ -18,6 +18,8 @@ export default function PacientesPage() {
   const { data, isLoading, isError } = usePatients(query, page)
   const deletePatient = useDeletePatient()
 
+  console.log('SESSION:', session)
+console.log('ROLE:', (session?.user as any)?.role)
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     setQuery(search)
