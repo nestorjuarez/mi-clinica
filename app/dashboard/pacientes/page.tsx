@@ -12,6 +12,7 @@ export default function PacientesPage() {
   const [query, setQuery] = useState('')
   const { data: session } = useSession()
 
+  console.log(session)
   const role = (session?.user as any)?.role
 
   const { data, isLoading, isError } = usePatients(query, page)
