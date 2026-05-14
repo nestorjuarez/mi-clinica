@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
-
 import Link from 'next/link'
 import { usePatients, useDeletePatient } from '@/hooks/usePatients'
 import { differenceInYears } from 'date-fns'
@@ -12,6 +11,8 @@ export default function PacientesPage() {
   const [page, setPage] = useState(1)
   const [query, setQuery] = useState('')
   const { data: session } = useSession()
+
+  const role = (session?.user as any)?.role
 
   const { data, isLoading, isError } = usePatients(query, page)
   const deletePatient = useDeletePatient()
@@ -23,13 +24,12 @@ export default function PacientesPage() {
   }
 
   async function handleDelete(id: string, nombre: string) {
-    if (!confirm(`¿Eliminar a ${nombre}? Esta acción no se puede deshacer.`)) return
+    if (!confirm(`¿Deshabilitar a ${nombre}?`)) return
     await deletePatient.mutateAsync(id)
   }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -235,9 +235,14 @@ export default function PacientesPage() {
                             Editar
                           </Link>
 
-                          {(session?.user as any)?.role === 'ADMIN' && (
+                          {role === 'ADMIN' && (
                             <button
-                              onClick={() => handleDelete(patient.id, `${patient.nombre} ${patient.apellido}`)}
+                              onClick={() =>
+                                handleDelete(
+                                  patient.id,
+                                  `${patient.nombre} ${patient.apellido}`
+                                )
+                              }
                               className="text-xs font-medium text-red-500 hover:text-red-700 px-2.5 py-1.5 rounded-md hover:bg-red-50 transition"
                             >
                               Deshabilitar
