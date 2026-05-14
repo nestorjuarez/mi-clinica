@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import Sidebar from '@/components/Sidebar'
+import DashboardShell from '@/components/DashboardShell'
 
 export default async function DashboardLayout({
   children,
@@ -9,14 +9,10 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const session = await getServerSession(authOptions)
-  if (!session) redirect('/login')
 
-  return (
-    <div className="flex h-screen bg-slate-50">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">
-        {children}
-      </main>
-    </div>
-  )
+  if (!session) {
+    redirect('/login')
+  }
+
+  return <DashboardShell>{children}</DashboardShell>
 }

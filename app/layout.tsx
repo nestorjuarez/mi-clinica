@@ -20,9 +20,9 @@ export default function RootLayout({
     <html lang="es">
       <body className={inter.className}>
         <Providers>
-          <LayoutClient>
+          
             {children}
-          </LayoutClient>
+         
         </Providers>
       </body>
     </html>
