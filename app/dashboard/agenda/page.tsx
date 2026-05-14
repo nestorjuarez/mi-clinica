@@ -65,9 +65,9 @@ export default function AgendaPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Agenda</h1>
           <p className="text-slate-500 text-sm mt-1">
@@ -158,11 +158,11 @@ export default function AgendaPage() {
 
               return (
                 <div
-                  key={hora}
-                  className="flex gap-4 px-6 py-3 hover:bg-slate-50 transition-colors group"
+                key={hora}
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4 px-4 sm:px-6 py-3 hover:bg-slate-50 transition-colors group"
                 >
                   {/* Hora */}
-                  <div className="w-16 shrink-0 pt-1">
+                  <div className="sm:w-16 shrink-0 pt-1">
                     <span className="text-xs font-semibold text-slate-400">
                       {String(hora).padStart(2, '0')}:00
                     </span>
@@ -174,9 +174,9 @@ export default function AgendaPage() {
                       {/* Turnos del horario */}
                       {turnos.map((turno: any) => (
                         <div
-                          key={turno.id}
-                          className={`flex items-center justify-between p-3 rounded-lg border ${ESTADO_COLORS[turno.estado]}`}
-                        >
+                        key={turno.id}
+                        className={`flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 rounded-lg border ${ESTADO_COLORS[turno.estado]}`}
+                      >
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
                               <span className="text-xs font-bold text-slate-600">
@@ -192,7 +192,7 @@ export default function AgendaPage() {
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <select
                               value={turno.estado}
                               onChange={(e) => handleChangeEstado(turno.id, e.target.value)}
