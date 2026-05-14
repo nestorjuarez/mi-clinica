@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useSession } from 'next-auth/react'
+
 import Link from 'next/link'
 import { usePatients, useDeletePatient } from '@/hooks/usePatients'
 import { differenceInYears } from 'date-fns'
@@ -9,6 +11,7 @@ export default function PacientesPage() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [query, setQuery] = useState('')
+  const { data: session } = useSession()
 
   const { data, isLoading, isError } = usePatients(query, page)
   const deletePatient = useDeletePatient()
@@ -232,17 +235,14 @@ export default function PacientesPage() {
                             Editar
                           </Link>
 
-                          <button
-                            onClick={() =>
-                              handleDelete(
-                                patient.id,
-                                `${patient.nombre} ${patient.apellido}`
-                              )
-                            }
-                            className="text-xs font-medium text-red-500 hover:text-red-700 px-2.5 py-1.5 rounded-md hover:bg-red-50 transition"
-                          >
-                            Eliminar
-                          </button>
+                          {(session?.user as any)?.role === 'ADMIN' && (
+                            <button
+                              onClick={() => handleDelete(patient.id, `${patient.nombre} ${patient.apellido}`)}
+                              className="text-xs font-medium text-red-500 hover:text-red-700 px-2.5 py-1.5 rounded-md hover:bg-red-50 transition"
+                            >
+                              Deshabilitar
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
