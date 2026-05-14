@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { useCreateAppointment, useDisponibilidad } from '@/hooks/useAppointments'
 import { usePatients } from '@/hooks/usePatients'
 import { format } from 'date-fns'
@@ -28,6 +29,11 @@ export default function AppointmentModal({
   const [fecha, setFecha] = useState(initialDate)
   const [searchPaciente, setSearchPaciente] = useState('')
   const [error, setError] = useState('')
+  const { data: session } = useSession()
+
+  const role = (session?.user as any)?.role
+  const medicoId = (session?.user as any)?.professionalId
+  const medicoNombre = session?.user?.name
 
   const createAppointment = useCreateAppointment()
   // const { data: patientsData } = usePatients(searchPaciente, 1)
@@ -55,7 +61,14 @@ useEffect(() => {
   }, 300)
   return () => clearTimeout(timer)
 }, [searchPaciente])
-
+useEffect(() => {
+  if (role === 'MEDICO' && medicoId) {
+    setForm((prev) => ({
+      ...prev,
+      professionalId: medicoId,
+    }))
+  }
+}, [role, medicoId])
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) {
@@ -149,9 +162,16 @@ useEffect(() => {
             )}
           </div>
 
-          {/* Profesional */}
-          <div>
-            <label className={labelClass}>Profesional *</label>
+         
+        {/* Profesional */}
+        <div>
+          <label className={labelClass}>Profesional *</label>
+
+          {role === 'MEDICO' ? (
+            <div className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-slate-100 text-sm text-slate-700">
+              {medicoNombre}
+            </div>
+          ) : (
             <select
               name="professionalId"
               value={form.professionalId}
@@ -159,11 +179,15 @@ useEffect(() => {
               className={inputClass}
             >
               <option value="">Seleccioná un profesional</option>
+
               {profesionales.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+        </div>
 
           {/* Fecha */}
           <div>
