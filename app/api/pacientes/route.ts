@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
   const where: any = {
     orgId,
-    active: true,
+    // active: true,
   }
 
   if (search) {
